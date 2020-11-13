@@ -8,6 +8,7 @@ public class Message {
 	
     public final static String LOGIN_SUCCESS = "Login success";
     public final static String LOGIN_FAILURE = "Login failure";
+    public final static String INFORMATION_LOGIN_INCORRECT = "Username or password is incorrect";
     public final static int HTTP_OK = 200;
     public final static String ROLE_ADMIN = "ADMIN";
     public final static String ROLE_USER = "USER";

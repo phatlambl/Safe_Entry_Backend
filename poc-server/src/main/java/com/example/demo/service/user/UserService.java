@@ -7,21 +7,31 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.Map;
 import com.example.demo.dto.user.ListUser;
+import com.example.demo.dto.user.RegisterDto;
 import com.example.demo.dto.user.UserDto;
 import com.example.demo.model.user.User;
+import com.example.demo.model.user.UserRole;
+import com.example.demo.repository.user.RoleRepository;
 import com.example.demo.repository.user.UserRepository;
+import com.example.demo.repository.user.UserRoleRepository;
 
 @Service
 public class UserService {
 	private final UserRepository userRepository;
     private final Map map;
-    public UserService(UserRepository userRepository, Map map) {
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
+    
+    public UserService(UserRepository userRepository, Map map, RoleRepository roleRepository, UserRoleRepository userRoleRepository) {
         this.userRepository = userRepository;
         this.map = map;
+		this.roleRepository = roleRepository;
+		this.userRoleRepository = userRoleRepository;
     }
 
     public List<UserDto> getListUser(int page, int pageSize){
@@ -63,16 +73,22 @@ public class UserService {
     }    
 	 
 	 
-	 // importDataBy csv
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
+	
+	 public boolean register(RegisterDto registerDto){
+       if (userRepository.findUserById(registerDto.getId()) != null){
+    	   
+    	   System.out.println("loi o day");
+           return false;
+       }
+       User user = new User();
+       user.setId(registerDto.getId());            
+       user.setName(registerDto.getName());
+       userRepository.save(user);
+       
+       return true;
+
     
+   }
+	  
+
 }

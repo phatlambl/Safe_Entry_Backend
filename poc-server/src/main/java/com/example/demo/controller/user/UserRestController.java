@@ -1,21 +1,19 @@
 package com.example.demo.controller.user;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.NotNull;
@@ -34,6 +33,7 @@ import org.supercsv.io.ICsvBeanReader;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import com.example.demo.dto.user.JwtResponse;
 import com.example.demo.dto.user.ListUser;
 import com.example.demo.dto.user.LoginDto;
 import com.example.demo.dto.user.RegisterDto;
@@ -46,7 +46,10 @@ import com.example.demo.service.auth.AuthenticationService;
 import com.example.demo.service.device.DeviceLogService;
 import com.example.demo.service.message.Message;
 import com.example.demo.service.message.ResponseMessage;
+import com.example.demo.service.user.MyUserDetailsService;
 import com.example.demo.service.user.UserService;
+import com.example.demo.util.JwtUtil;
+
 
 
 
@@ -57,6 +60,15 @@ public class UserRestController {
 	private final AuthenticationService authenticationService;
 	private final UserService userService;
 	private final UserRepository userRepository;
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtUtil jwtUtil;
+	
+	@Autowired
+	private MyUserDetailsService myUserDetailService;
 
 	@Autowired
 	public UserRestController(UserRepository userRepository, DeviceRepository deviceRepository,
@@ -67,24 +79,47 @@ public class UserRestController {
 		this.userRepository = userRepository;
 	}
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
-    public Object login(HttpSession session, @RequestBody LoginDto loginDto) {
-        if (authenticationService.login(loginDto, session)) {
-        	ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
-        	return reMessage;
-        }
-        ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_FAILURE);
-    	return reMessage;
-    }
+//    @RequestMapping(value = "login", method = RequestMethod.POST)    
+//    public Object login(HttpSession session, @RequestBody LoginDto loginDto) {
+//        if (authenticationService.login(loginDto, session)) {
+//        	ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
+//        	return reMessage;
+//        }
+//        ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_FAILURE);
+//    	return reMessage;
+//    }
+	
+	@RequestMapping(value="/login", method = RequestMethod.POST)	
+	public Object createToken(@Validated @RequestBody LoginDto loginDto, BindingResult result) throws Exception {
+		if(result.hasErrors()) {
+			 ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST, Message.MISS_INFORMATION);
+			 return reMessage;
+		}
+		try {
+			authenticate(loginDto.getUsername(), loginDto.getPassword());
 
-    @RequestMapping(value = "register", method = RequestMethod.POST)
+			final UserDetails userDetails = myUserDetailService.loadUserByUsername(loginDto.getUsername());
+
+			final String token = jwtUtil.generateToken(userDetails);
+
+			return new JwtResponse(token, HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
+			
+		}catch (Exception e) {
+			 ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST, Message.INFORMATION_LOGIN_INCORRECT);
+			 return reMessage;
+		}
+		
+	}
+
+	//add user
+    @RequestMapping(value = "add", method = RequestMethod.POST)
     public Object register(@Validated @RequestBody RegisterDto registerDto, BindingResult result) {
     	if(result.hasErrors()) {
     		ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_GATEWAY, Message.MISS_INFORMATION);
         	return reMessage;
     		
     	}
-        if (authenticationService.register(registerDto)) {
+        if (userService.register(registerDto)) {
         	ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.REGISTER_SUCCESS);
         	return reMessage;
         }
@@ -200,6 +235,17 @@ public class UserRestController {
 		return processors;
 	}   
    
+	
+	private void authenticate(String username, String password) throws Exception {
+		try {
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+		}catch (DisabledException e) {
+			throw new Exception("USER_DISABLE", e);
+		}catch( BadCredentialsException e) {
+			throw new Exception("INVALID_CREDENTIALS", e);
+		}
+		
+	}
 
    
    

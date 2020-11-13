@@ -1,9 +1,13 @@
 package com.example.demo.dto.user;
 
+import javax.validation.constraints.NotEmpty;
+
 public class LoginDto {
 	
+	@NotEmpty
     private String username;
     
+	@NotEmpty
     private String password;
 
     public String getUsername() {
