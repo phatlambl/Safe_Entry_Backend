@@ -28,7 +28,7 @@ public interface DeviceLogRepository extends JpaRepository<DeviceLog, Integer> {
     public Page<DeviceLog> findByFilter(String name, String deviceID, Long fromTime, Long toTime , Pageable pageable);
     
    
-   
+
 
    
 

@@ -1,15 +1,21 @@
 package com.example.demo.model.user;
 
-import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.example.demo.model.device.DeviceLog;
 
 
 @Entity
 @Table(name = "user")
-public class User {
-	
+public class User {	
 	
     @Id   
     @Column(name = "id")
@@ -25,7 +31,10 @@ public class User {
     private String email;
     
     @Column(name = "name")
-    private String name;    
+    private String name;   
+    
+    @Column(name ="face_id")
+    private String faceId;
     
     @Transient
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
@@ -78,8 +87,16 @@ public class User {
 
 	public void setListDeviceLogs(List<DeviceLog> listDeviceLogs) {
 		this.listDeviceLogs = listDeviceLogs;
-	}
+	}	
 	
+	public String getFaceId() {
+		return faceId;
+	}
+
+	public void setFaceId(String faceId) {
+		this.faceId = faceId;
+	}
+
 	public User(String id, String username, String password, String email, String name) {		
 		this.id = id;
 		this.username = username;

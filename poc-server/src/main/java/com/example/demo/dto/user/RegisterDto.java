@@ -1,10 +1,13 @@
 package com.example.demo.dto.user;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import org.springframework.lang.NonNull;
 
 public class RegisterDto {
 	
-	@NonNull
+	@NotBlank
 	private String id;
 	
     private String email;
@@ -13,8 +16,10 @@ public class RegisterDto {
     
     private String password;
     
-    @NonNull
+    @NotEmpty
     private String name;
+    
+    private String face_id;
   
 
     public String getId() {
@@ -55,6 +60,15 @@ public class RegisterDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+
+	public String getFace_id() {
+		return face_id;
+	}
+
+	public void setFace_id(String face_id) {
+		this.face_id = face_id;
 	}
 
 	public RegisterDto(String id, String email, String username, String password, String name) {		

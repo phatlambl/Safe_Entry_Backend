@@ -1,10 +1,13 @@
 package com.example.demo.dto;
 
 import com.example.demo.dto.device.DeviceLogDto;
+import com.example.demo.dto.device.EntryCsvDto;
 import com.example.demo.dto.user.UserDto;
 import com.example.demo.dto.user.UserTemperature;
 import com.example.demo.model.device.DeviceLog;
 import com.example.demo.model.user.User;
+
+import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,22 @@ public class Map {
         deviceLogDto.setTemperature(deviceLog.getTemperature());        
         
         return deviceLogDto;
+    }
+    
+    
+    
+    public EntryCsvDto entryCsvDto(DeviceLog deviceLog) {
+    	EntryCsvDto entryCsvDto = new EntryCsvDto();    	
+    	
+    	entryCsvDto.setUserId(deviceLog.getUser().getId());
+    	entryCsvDto.setName(deviceLog.getUser().getName());
+    	entryCsvDto.setCardType(deviceLog.getCardType());    	
+    	entryCsvDto.setDeviceId(deviceLog.getDevice().getId());
+    	entryCsvDto.setLocation(deviceLog.getDevice().getLocation());
+    	entryCsvDto.setTemperature(deviceLog.getTemperature());
+    	entryCsvDto.setTimestamp(new Date(deviceLog.getTimestamp()));
+    	
+    	return entryCsvDto;
     }
 
     public UserTemperature userTemperature(DeviceLog deviceLog){

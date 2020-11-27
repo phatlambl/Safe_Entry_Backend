@@ -51,13 +51,24 @@ public class DeviceService {
 		try {
 			Device device = new Device();
 			device.setId(deviceDto.getId());
-			device.setLocation(deviceDto.getLocation());		
+			device.setLocation(deviceDto.getLocation());	
+			device.setFloor(deviceDto.getFloor());
+			device.setRoom(deviceDto.getRoom());
 			deviceRepository.save(device);
 		} catch (Exception e) {
 			return false;
 		}		
 		
 		return true;
+	}
+	
+	public boolean deleteDevice(String id) {
+		try {
+			deviceRepository.deleteDeviceById(id);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;		
 	}
 	
 }

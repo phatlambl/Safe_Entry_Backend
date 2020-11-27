@@ -1,4 +1,4 @@
-package com.example.demo.model.conf;
+	package com.example.demo.model.conf;
 
 import javax.persistence.*;
 

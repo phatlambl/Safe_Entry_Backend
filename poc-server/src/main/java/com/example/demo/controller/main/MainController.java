@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-public class MainController {
-	
+public class MainController {	
 
 	@RequestMapping("/admin/**")
 	public String redirect() {

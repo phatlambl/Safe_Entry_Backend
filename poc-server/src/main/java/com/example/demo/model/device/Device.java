@@ -14,6 +14,12 @@ public class Device {
     @Column(name = "location")
     private String location;  
 
+    @Column(name = "floor")
+    private String floor;
+    
+    @Column(name="room")
+    private String room;
+    
     public String getId() {
 		return id;
 	}
@@ -30,14 +36,36 @@ public class Device {
         this.location = location;
     }
 
-	public Device(String id, String location) {		
+	public String getFloor() {
+		return floor;
+	}
+
+	public void setFloor(String floor) {
+		this.floor = floor;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
+	}
+
+	public Device(String id, String location, String floor, String room) {		
 		this.id = id;
 		this.location = location;
+		this.floor = floor;
+		this.room = room;
 	}
 
 	public Device() {
 		
 	}
+	
+	
+
+	
 	
 	
     

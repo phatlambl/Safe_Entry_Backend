@@ -21,6 +21,10 @@ public class DeviceLogSubmitDto {
 	
 	private String location;
 	
+	private String floor;
+	
+	private String room;
+	
 	private String name;
 
     public String getDeviceId() {
@@ -78,6 +82,22 @@ public class DeviceLogSubmitDto {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
+	public String getFloor() {
+		return floor;
+	}
+
+	public void setFloor(String floor) {
+		this.floor = floor;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
+	}	
     
+	
 }

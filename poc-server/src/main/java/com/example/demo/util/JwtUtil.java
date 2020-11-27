@@ -18,7 +18,7 @@ public class JwtUtil {
 	public static final long JWT_TOKEN_VALIDITY = 8*60*60;
 	
 	//khóa bí mật, token sẽ được mã hóa với khóa này
-	private static final String secret ="phat";
+	private static final String secret ="styl";
 	
 	
 	//sử dụng khóa để giải mã token

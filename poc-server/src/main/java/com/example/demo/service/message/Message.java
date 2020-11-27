@@ -12,6 +12,7 @@ public class Message {
     public final static int HTTP_OK = 200;
     public final static String ROLE_ADMIN = "ADMIN";
     public final static String ROLE_USER = "USER";
+    public final static String USER_NOT_EXIST = "USER NOT EXIST";
     public final static String ROLE = "ROLE";
     public final static String USER_ID = "USER_ID";
     public final static String PERMISSION_DENIED = "PERMISSION_DENIED";
@@ -26,10 +27,13 @@ public class Message {
     public final static String ADD_FAILURE = "ADD FAILURE";
     public final static String ADD_SUCCESS = "ADD SUCCESS";
     public final static String UPDATE_SUCCESS = "UPDATE SUCCESS";
+    public final static String UPDATE_FAILURE = "UPDATE FAILURE";
     public final static String DUPLICATE_DEVICE ="DUPLICATE DEVICE";
     public final static String IMPORT_SUCCESS = "IMPORT SUCCESS";
     public final static String IMPORT_FAILURE = "IMPORT FAILURE";
     public final static String IMPORT_NOT_CORRECT = "FILE CSV NOT CORRECT";    
     public final static String DELETE_SUCCESS = "DELETE SUCCESS";
     public final static String DELETE_FAILURE = "DELETE FAILURE";
+    public final static String NOT_RECOGNIZE = "Not Recognize, Please tap Card or Scan QR";
+    
 }
