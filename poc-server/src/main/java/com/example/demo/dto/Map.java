@@ -17,9 +17,10 @@ public class Map {
         DeviceLogDto deviceLogDto = new DeviceLogDto();
         
         deviceLogDto.setUserId(deviceLog.getUser().getId());
-        deviceLogDto.setName(deviceLog.getUser().getName());
+        deviceLogDto.setName(deviceLog.getName());
         deviceLogDto.setCardType(deviceLog.getCardType());
         deviceLogDto.setTimestamp(deviceLog.getTimestamp());
+        deviceLogDto.setTtCode(deviceLog.getTtCode());
         deviceLogDto.setDeviceId(deviceLog.getDevice().getId());
         deviceLogDto.setLocation(deviceLog.getDevice().getLocation());
         deviceLogDto.setTemperature(deviceLog.getTemperature());        
@@ -39,6 +40,7 @@ public class Map {
     	entryCsvDto.setLocation(deviceLog.getDevice().getLocation());
     	entryCsvDto.setTemperature(deviceLog.getTemperature());
     	entryCsvDto.setTimestamp(new Date(deviceLog.getTimestamp()));
+    	entryCsvDto.setTTCode(deviceLog.getTtCode());
     	
     	return entryCsvDto;
     }

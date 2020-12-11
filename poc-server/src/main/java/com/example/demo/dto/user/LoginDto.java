@@ -26,5 +26,11 @@ public class LoginDto {
         this.password = password;
     }
 
+	public LoginDto(@NotEmpty String username, @NotEmpty String password) {		
+		this.username = username;
+		this.password = password;
+	}
+
+    
    
 }

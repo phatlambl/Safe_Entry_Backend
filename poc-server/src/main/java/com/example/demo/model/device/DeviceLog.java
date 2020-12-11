@@ -40,6 +40,9 @@ public class DeviceLog {
     
     @Column(name="name")
     private String name;    
+    
+    @Column(name="tt_code")
+    private String ttCode;
    
 
     public float getTemperature() {
@@ -96,6 +99,16 @@ public class DeviceLog {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getTtCode() {
+		return ttCode;
+	}
+
+	public void setTtCode(String ttCode) {
+		this.ttCode = ttCode;
+	}
+
+	
 	
     
 }

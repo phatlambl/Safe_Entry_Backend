@@ -117,6 +117,14 @@ public class User {
 		this.name = name;
 	}
 
+	
+	public User(String id,  String name, String email, String faceId) {		
+		this.id = id;
+		this.email = email;
+		this.name = name;
+		this.faceId = faceId;
+	}
+
 	public User() {		
 	}
 	

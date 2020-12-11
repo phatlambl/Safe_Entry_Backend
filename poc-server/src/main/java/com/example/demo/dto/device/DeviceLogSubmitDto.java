@@ -19,6 +19,8 @@ public class DeviceLogSubmitDto {
 	@NotNull
     private String cardType;
 	
+	private String ttCode;
+	
 	private String location;
 	
 	private String floor;
@@ -27,7 +29,16 @@ public class DeviceLogSubmitDto {
 	
 	private String name;
 
-    public String getDeviceId() {
+	
+    public String getTtCode() {
+		return ttCode;
+	}
+
+	public void setTtCode(String ttCode) {
+		this.ttCode = ttCode;
+	}
+
+	public String getDeviceId() {
 		return deviceId;
 	}
 
@@ -97,7 +108,10 @@ public class DeviceLogSubmitDto {
 
 	public void setRoom(String room) {
 		this.room = room;
-	}	
+	}
+
+		
+	
     
 	
 }

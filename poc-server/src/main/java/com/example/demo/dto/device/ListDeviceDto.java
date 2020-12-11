@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.example.demo.model.device.Device;
 
+/*
+ * List Device
+ * */
 public class ListDeviceDto {
 
 	private Long totalItems;

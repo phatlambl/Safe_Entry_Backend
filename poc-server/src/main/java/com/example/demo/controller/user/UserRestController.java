@@ -2,15 +2,10 @@ package com.example.demo.controller.user;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.supercsv.cellprocessor.constraint.NotNull;
@@ -44,11 +38,7 @@ import com.example.demo.dto.user.LoginDto;
 import com.example.demo.dto.user.RegisterDto;
 import com.example.demo.dto.user.UserDto;
 import com.example.demo.model.user.User;
-import com.example.demo.repository.device.DeviceLogRepository;
-import com.example.demo.repository.device.DeviceRepository;
 import com.example.demo.repository.user.UserRepository;
-import com.example.demo.service.auth.AuthenticationService;
-import com.example.demo.service.device.DeviceLogService;
 import com.example.demo.service.message.Message;
 import com.example.demo.service.message.ResponseMessage;
 import com.example.demo.service.user.MyUserDetailsService;
@@ -57,40 +47,27 @@ import com.example.demo.util.JwtUtil;
 
 @RestController
 @RequestMapping("/rest/user/")
-public class UserRestController {
+public class UserRestController {	
 
-	private final AuthenticationService authenticationService;
-	private final UserService userService;
-	private final UserRepository userRepository;
+	@Autowired
+	private UserService userService;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
-
+	
 	@Autowired
 	private JwtUtil jwtUtil;
 
 	@Autowired
 	private MyUserDetailsService myUserDetailService;
+	
 
-	@Autowired
-	public UserRestController(UserRepository userRepository, DeviceRepository deviceRepository,
-			DeviceLogRepository deviceLogRepository, AuthenticationService authenticationService,
-			DeviceLogService deviceService, UserService userService) {
-		this.authenticationService = authenticationService;
-		this.userService = userService;
-		this.userRepository = userRepository;
-	}
-
-//    @RequestMapping(value = "login", method = RequestMethod.POST)    
-//    public Object login(HttpSession session, @RequestBody LoginDto loginDto) {
-//        if (authenticationService.login(loginDto, session)) {
-//        	ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
-//        	return reMessage;
-//        }
-//        ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.LOGIN_FAILURE);
-//    	return reMessage;
-//    }
-
+	/*
+	 * Login account( used id and password)
+	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public Object createToken(@Validated @RequestBody LoginDto loginDto, BindingResult result) throws Exception {
 		if (result.hasErrors()) {
@@ -112,10 +89,11 @@ public class UserRestController {
 					Message.INFORMATION_LOGIN_INCORRECT);
 			return reMessage;
 		}
-
 	}
 
-	// add user
+	/*
+	 * add user(id, name, email, password, faceId)
+	 * */
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public Object register(@Validated @RequestBody RegisterDto registerDto, BindingResult result) {
 		if (result.hasErrors()) {
@@ -158,8 +136,7 @@ public class UserRestController {
 
 	// delete user
 	@RequestMapping(value = "delete/{id}", method = RequestMethod.DELETE)
-	public Object deleteUser(@PathVariable(value = "id") String id) {
-		System.out.println(userService.delete(id));
+	public Object deleteUser(@PathVariable(value = "id") String id) {		
 		if (userService.delete(id)) {
 			ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.DELETE_SUCCESS);
 			return reMessage;
@@ -167,7 +144,6 @@ public class UserRestController {
 			ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST, Message.DELETE_FAILURE);
 			return reMessage;
 		}
-
 	}
 
 	@RequestMapping(value = "list", method = RequestMethod.GET)
@@ -182,17 +158,11 @@ public class UserRestController {
 		return userService.getListByFilter(name, userId, sortBy, order, pageIndex, pageSize);
 	}
 
-//    @GetMapping(value="delete/{id}")
-//    public Object delete(@PathVariable String id) {
-//    	
-//    	userRepository.deleteById(id);
-//    	
-//    	
-//    	
-//    	ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_OK, Message.DELETE_SUCCESS);
-//		return reMessage;
-//    }
 
+	/*
+	 * Download list user to file csv
+	 * include: id, name, email, faceId
+	 * */
 	@GetMapping(value = "download")
 	public void exportCsv(HttpServletResponse response) throws IOException {
 
@@ -200,21 +170,19 @@ public class UserRestController {
 
 		listUser = userRepository.findAll();
 		response.setContentType("text/csv");
-//	   SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-//	   String dateDownload = sdf.format(new Date());
-//	   System.out.println(dateDownload);
-//	   
+//		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//		String dateDownload = sdf.format(new Date());  
+//		System.out.println(dateDownload);
 
 		String fileName = "employee.csv";
 		String headerKey = "Content-Disposition";
 		String headerValue = "attachment; filename=" + fileName;
-
+		
 		response.setHeader(headerKey, headerValue);
-
 		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
 
-		String[] csvHeader = { "UserId", "Name" };
-		String[] nameMapping = { "id", "name" };
+		String[] csvHeader = { "UserId", "Name", "Email", "FaceId" };
+		String[] nameMapping = { "id", "name", "email", "faceId" };
 
 		csvWriter.writeHeader(csvHeader);
 		for (User user : listUser) {
@@ -224,6 +192,12 @@ public class UserRestController {
 		csvWriter.close();
 	}
 
+	
+	/*
+	 * 
+	 * Import user by file csv
+	 * include the fields are in the correct order: id, name, email, faceid)
+	 * */
 	@RequestMapping(value = "import", method = RequestMethod.POST)
 	public Object importUserCsv(@RequestParam(value = "myFile") MultipartFile files) throws Exception {
 
@@ -237,14 +211,18 @@ public class UserRestController {
 						CsvPreference.STANDARD_PREFERENCE);
 
 				// final CellProcessor[] processors = getProcessors();
-				String[] nameMapping = { "id", "name" };
+				String[] nameMapping = { "id", "name", "email", "faceId" };
 
 				UserDto userDto;
 
 				while ((userDto = beanReader.read(UserDto.class, nameMapping)) != null) {
 
-					System.out.println("name: " + userDto.getName());
-					User user = new User(userDto.getId(), userDto.getName());
+//					System.out.println("id: " + userDto.getId());
+//					System.out.println("name: " + userDto.getName());
+//					System.out.println("email: " + userDto.getEmail());
+//					System.out.println("faceId: " + userDto.getFaceId());
+
+					User user = new User(userDto.getId(), userDto.getName(), userDto.getEmail(), userDto.getFaceId());
 					userRepository.save(user);
 				}
 
@@ -270,7 +248,7 @@ public class UserRestController {
 
 	}
 
-	// validate
+	// validate file csv
 	private CellProcessor[] getProcessors() {
 
 		final CellProcessor[] processors = new CellProcessor[] { new UniqueHashCode(), // UUID (must be unique)
@@ -280,6 +258,7 @@ public class UserRestController {
 		return processors;
 	}
 
+	//authenticate user login
 	private void authenticate(String username, String password) throws Exception {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

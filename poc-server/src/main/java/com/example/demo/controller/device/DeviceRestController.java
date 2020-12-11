@@ -1,8 +1,10 @@
 package com.example.demo.controller.device;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.supercsv.io.CsvBeanReader;
+import org.springframework.web.client.RestTemplate;
 import org.supercsv.io.CsvBeanWriter;
-import org.supercsv.io.ICsvBeanReader;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import com.example.demo.dto.device.DeviceAccessFaceIdDto;
 import com.example.demo.dto.device.DeviceDto;
-import com.example.demo.dto.device.DeviceLogDto;
+import com.example.demo.dto.device.DeviceLogExcelExport;
 import com.example.demo.dto.device.DeviceLogListDto;
 import com.example.demo.dto.device.DeviceLogSubmitDto;
 import com.example.demo.dto.device.EntryCsvDto;
@@ -47,22 +49,27 @@ import com.example.demo.service.message.ResponseMessage;
 @RequestMapping("/rest/device/")
 public class DeviceRestController {
 
-	private final DeviceLogService deviceLogService;
-	private final DeviceService deviceService;
-	private final DeviceLogRepository deviceLogRepository;
-	private final DeviceRepository deviceRepository;
+	@Autowired
+	private DeviceLogService deviceLogService;
+	
+	@Autowired
+	private DeviceService deviceService;
+	
+	@Autowired
+	private DeviceLogRepository deviceLogRepository;
+	
+	@Autowired
+	private DeviceRepository deviceRepository;
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private RestTemplate restTemplate;
 
-	public DeviceRestController(DeviceLogService deviceLogService, DeviceService deviceService,
-			DeviceLogRepository deviceLogRepository, DeviceRepository deviceRepository) {
-		this.deviceLogService = deviceLogService;
-		this.deviceService = deviceService;
-		this.deviceLogRepository = deviceLogRepository;
-		this.deviceRepository = deviceRepository;
-	}
-
+	/*
+	 * Device submit data to server 
+	 */
 	@RequestMapping(value = "submit", method = RequestMethod.POST)
 	public Object submit(HttpServletResponse response, @Validated @RequestBody DeviceLogSubmitDto deviceLogSubmitDto,
 			BindingResult result) {
@@ -83,14 +90,34 @@ public class DeviceRestController {
 		return reMessage;
 	}
 
+	
 	/*
-	 * Device access by faceId
-	 * 
+	 * Device access by faceId *
 	 */
-	@RequestMapping(value = "access")
-	public Object deviceAccess(@RequestParam(name = "faceId", required = true) String faceId) {
-
-		Optional<User> user = userRepository.findByFaceId(faceId);
+	@RequestMapping(value = "access", method = RequestMethod.POST)
+	public Object deviceAccess(@Validated @RequestBody DeviceAccessFaceIdDto deviceAccessFaceIdDto,HttpServletResponse resp,
+			BindingResult result) {
+	
+		if (result.hasErrors()) {
+			ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST,
+					Message.MISS_INFORMATION);
+			return reMessage;
+		}
+		
+		
+		//call to server face recognize
+		
+//		 final String uri = "https://uat4.styl.solutions/demo/rest/user/login";		 
+//		    
+//		    RestTemplate restTemplate = new RestTemplate();
+//		 
+//		    LoginDto login = new LoginDto("admin", "admin");
+//		    Object rs = restTemplate.postForObject(uri, login, Object.class);
+//		    System.out.println(rs);
+//		    return rs;
+	
+		
+		Optional<User> user = userRepository.findByFaceId(deviceAccessFaceIdDto.getFaceId());
 		if (user.isPresent()) {
 
 			faceIdResponse res = new faceIdResponse(user.get(), HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
@@ -101,6 +128,9 @@ public class DeviceRestController {
 		return reMessage;
 	}
 
+	/*
+	 * Api return to list user access data *
+	 */
 	@RequestMapping(value = "list/log", method = RequestMethod.GET)
 	public DeviceLogListDto listDeviceLog(@RequestParam(name = "page", required = false, defaultValue = "0") int page,
 			@RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
@@ -131,9 +161,10 @@ public class DeviceRestController {
 	// get all list device_log by User (draw chart) no page
 	@RequestMapping(value = "list/user", method = RequestMethod.GET)
 	public List<DeviceLog> listDeviceLogByUser(@RequestParam(name = "fromTimestamp") Long fromTimestamp,
-			@RequestParam(name = "toTimestamp") Long toTimestamp, @RequestParam(name = "userId") String userId) {
-
-		return deviceLogService.getListByTime(userId, fromTimestamp, toTimestamp);
+										       @RequestParam(name = "toTimestamp") Long toTimestamp, 
+											   @RequestParam(name = "userId") String userId,
+											   @RequestParam(name = "name") String name) {
+		return deviceLogService.getListByTime(userId, name, fromTimestamp, toTimestamp);
 	}
 
 	// get list device by page
@@ -223,8 +254,10 @@ public class DeviceRestController {
 
 		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
 
-		String[] csvHeader = { "UUID", "Name", "CardType", "Temperature", "Timestamp", "deviceId", "Location" };
-		String[] nameMapping = { "userId", "name", "cardType", "temperature", "timestamp", "deviceId", "location" };
+		String[] csvHeader = { "UUID", "Name", "CardType", "Temperature", "Timestamp", "TTCode", "deviceId",
+				"Location" };
+		String[] nameMapping = { "userId", "name", "cardType", "temperature", "timestamp", "ttCode", "deviceId",
+				"location" };
 
 		csvWriter.writeHeader(csvHeader);
 		for (EntryCsvDto entryCsvDto : listDeviceLogDto) {
@@ -232,6 +265,34 @@ public class DeviceRestController {
 		}
 
 		csvWriter.close();
+	}
+	
+	
+	/*
+	 * Feature: export deviceLog(userLogin) to file excel
+	 * 
+	 */
+	public void exportToExcel(HttpServletResponse response,
+			@RequestParam(name = "name", required = false, defaultValue = "") String name,
+			@RequestParam(name = "deviceId", required = false, defaultValue = "") String deviceId,
+			@RequestParam(name = "fromTimestamp", required = false) Long fromTimestamp,
+			@RequestParam(name = "toTimestamp", required = false) Long toTimestamp,
+			@RequestParam(name = "sortBy", required = false, defaultValue = "timestamp") String sortBy,
+			@RequestParam(name = "order", required = false, defaultValue = "DESC") String order) throws IOException {
+		response.setContentType("application/octet-stream");
+		String headerKey = "Content-Disposition";
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+		String currentDateTime = dateFormatter.format(new Date());
+		String fileName = "UserLog" + currentDateTime + ".xlsx";
+		String headerValue = "attachement;filename=" + fileName;
+
+		response.setHeader(headerKey, headerValue);
+		List<DeviceLog> listDeviceLog = new ArrayList<DeviceLog>();
+		listDeviceLog = deviceLogRepository.findAll();
+
+		DeviceLogExcelExport excelExport = new DeviceLogExcelExport(listDeviceLog);
+		excelExport.export(response);
+
 	}
 
 }

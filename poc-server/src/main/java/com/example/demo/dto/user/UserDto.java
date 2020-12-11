@@ -1,10 +1,15 @@
 package com.example.demo.dto.user;
 
+/*
+ * DTO use import csv
+ * 
+ * */
 public class UserDto {
 	
 	String id;
     String name;
-    String email;    
+    String email;  
+    String faceId;
     
     public String getId() {
         return id;
@@ -28,6 +33,14 @@ public class UserDto {
     public void setEmail(String email) {
         this.email = email;
     }
+
+	public String getFaceId() {
+		return faceId;
+	}
+
+	public void setFaceId(String faceId) {
+		this.faceId = faceId;
+	}
 
    
 }

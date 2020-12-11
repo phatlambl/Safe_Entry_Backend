@@ -9,6 +9,7 @@ public class DeviceLogDto {
     private Long timestamp;
     private String deviceId;
     private String location;  
+    private String ttCode;
 
     public String getName() {
 		return name;
@@ -65,6 +66,16 @@ public class DeviceLogDto {
 	public void setCardType(String cardType) {
 		this.cardType = cardType;
 	}
+
+	public String getTtCode() {
+		return ttCode;
+	}
+
+	public void setTtCode(String ttCode) {
+		this.ttCode = ttCode;
+	}
+
+	
 
     
 }

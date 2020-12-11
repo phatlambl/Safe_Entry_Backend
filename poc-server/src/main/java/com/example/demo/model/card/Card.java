@@ -5,15 +5,15 @@ import javax.persistence.*;
 @Entity
 @Table(name = "card")
 public class Card {
-	
-    @Id   
-    @Column(name = "id")
-    private String id;
-    @Column(name = "type")
-    private String type;
 
-   
-    public String getId() {
+	@Id
+	@Column(name = "id")
+	private String id;
+
+	@Column(name = "type")
+	private String type;
+
+	public String getId() {
 		return id;
 	}
 
@@ -22,10 +22,10 @@ public class Card {
 	}
 
 	public String getType() {
-        return type;
-    }
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 }

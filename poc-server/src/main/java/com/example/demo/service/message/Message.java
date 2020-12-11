@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class Message {
 	
-	
     public final static String LOGIN_SUCCESS = "Login success";
     public final static String LOGIN_FAILURE = "Login failure";
     public final static String INFORMATION_LOGIN_INCORRECT = "Username or password is incorrect";

@@ -3,11 +3,8 @@ package com.example.demo.dto.device;
 import java.util.Date;
 
 /*
- * entry DTO
- * 
- * 
- * 
- * */
+ * Download deviceLog to CSV 
+ *  * */
 public class EntryCsvDto {
 
 	private String userId;   
@@ -17,6 +14,7 @@ public class EntryCsvDto {
     private Date timestamp;
     private String deviceId;
     private String location;
+    private String TTCode;
     
 	public String getUserId() {
 		return userId;
@@ -59,7 +57,14 @@ public class EntryCsvDto {
 	}
 	public void setLocation(String location) {
 		this.location = location;
+	}
+	public String getTTCode() {
+		return TTCode;
+	}
+	public void setTTCode(String tTCode) {
+		TTCode = tTCode;
 	}  
+	
     
     
 }

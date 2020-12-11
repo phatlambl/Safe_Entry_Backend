@@ -19,7 +19,7 @@ public class RegisterDto {
     @NotEmpty
     private String name;
     
-    private String face_id;
+    private String faceId;
   
 
     public String getId() {
@@ -63,12 +63,12 @@ public class RegisterDto {
 	}
 	
 
-	public String getFace_id() {
-		return face_id;
+	public String getFaceId() {
+		return faceId;
 	}
 
-	public void setFace_id(String face_id) {
-		this.face_id = face_id;
+	public void setFaceId(String face_id) {
+		this.faceId = face_id;
 	}
 
 	public RegisterDto(String id, String email, String username, String password, String name) {		
@@ -82,6 +82,17 @@ public class RegisterDto {
 	public RegisterDto() {
 		
 	}
+
+	public RegisterDto(@NotBlank String id, String email, String username, String password, @NotEmpty String name,
+			String faceId) {		
+		this.id = id;
+		this.email = email;
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.faceId = faceId;
+	}
+	
 
     
 

@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.criteria.Join;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -27,16 +24,17 @@ import com.example.demo.dto.device.DeviceLogSubmitDto;
 import com.example.demo.dto.device.EntryCsvDto;
 import com.example.demo.dto.user.UserTemperature;
 import com.example.demo.model.conf.EmailConfig;
+import com.example.demo.model.databaseupdate.DatabaseUpdate;
 import com.example.demo.model.device.Device;
 import com.example.demo.model.device.DeviceLog;
 import com.example.demo.model.user.User;
 import com.example.demo.repository.card.UserCardRepository;
 import com.example.demo.repository.conf.EmailConfigRepository;
 import com.example.demo.repository.conf.TemperatureRepository;
+import com.example.demo.repository.databaseupdate.DatabaseUpdateReposiroty;
 import com.example.demo.repository.device.DeviceLogRepository;
 import com.example.demo.repository.device.DeviceRepository;
 import com.example.demo.repository.user.UserRepository;
-import com.example.demo.service.auth.AuthenticationService;
 import com.example.demo.service.message.Message;
 
 @Service
@@ -48,12 +46,13 @@ public class DeviceLogService {
 	private final TemperatureRepository temperatureRepository;
 	private final EmailConfigRepository emailConfigRepository;
 	private final JavaMailSender javaMailSender;
+	private final DatabaseUpdateReposiroty databaseUpdateRepo;
 
 	@Autowired
-	public DeviceLogService(DeviceRepository deviceRepository, AuthenticationService authenticationService,
+	public DeviceLogService(DeviceRepository deviceRepository, 
 			UserRepository userRepository, DeviceLogRepository deviceLogRepository, Map map,
 			UserCardRepository userCardRepository, TemperatureRepository temperatureRepository,
-			EmailConfigRepository emailConfigRepository, JavaMailSender javaMailSender) {
+			EmailConfigRepository emailConfigRepository, JavaMailSender javaMailSender, DatabaseUpdateReposiroty databaseUpdateRepo) {
 		this.deviceRepository = deviceRepository;
 		this.userRepository = userRepository;
 		this.deviceLogRepository = deviceLogRepository;
@@ -61,10 +60,11 @@ public class DeviceLogService {
 		this.temperatureRepository = temperatureRepository;
 		this.emailConfigRepository = emailConfigRepository;
 		this.javaMailSender = javaMailSender;
+		this.databaseUpdateRepo = databaseUpdateRepo;
 	}
 
 	public boolean submitLog(DeviceLogSubmitDto deviceLogSubmitDto) {
-		SimpleMailMessage msg = new SimpleMailMessage();
+		
 		float max_temperature = temperatureRepository.findById(1).getTemperature();
 		if (deviceLogSubmitDto.getName() == null) {
 			deviceLogSubmitDto.setName("client");
@@ -80,8 +80,12 @@ public class DeviceLogService {
 		// neu UUID not exist van save
 		if (userRepository.findUserById(deviceLogSubmitDto.getUserId()) == null) {
 			// add use_id moi vao he thong
-			User addUser = new User(deviceLogSubmitDto.getUserId(), deviceLogSubmitDto.getName());
+			User addUser = new User(deviceLogSubmitDto.getUserId(), deviceLogSubmitDto.getName());			
 			userRepository.save(addUser);
+			
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());			
+			DatabaseUpdate dateModify = new DatabaseUpdate(1, timestamp.getTime());
+			databaseUpdateRepo.save(dateModify);
 		}
 		User user = userRepository.findUserById(deviceLogSubmitDto.getUserId());
 		// check client
@@ -98,6 +102,7 @@ public class DeviceLogService {
 		deviceLog.setUser(userRepository.findUserById(deviceLogSubmitDto.getUserId()));
 		deviceLog.setCardType(deviceLogSubmitDto.getCardType());
 		deviceLog.setName(user.getName());
+		deviceLog.setTtCode(deviceLogSubmitDto.getTtCode());		
 
 		try {
 			deviceLogRepository.save(deviceLog);
@@ -105,6 +110,7 @@ public class DeviceLogService {
 			return false;
 		}
 		if (deviceLogSubmitDto.getTemperature() > max_temperature) {
+			SimpleMailMessage msg = new SimpleMailMessage();
 			List<EmailConfig> listEmail = emailConfigRepository.findAll();
 			for (EmailConfig list : listEmail) {
 				String email = list.getEmail();
@@ -159,8 +165,8 @@ public class DeviceLogService {
 	}
 
 	// get all list device_log by User
-	public List<DeviceLog> getListByTime(String userId, long fromTimestamp, long toTimestamp) {
-		return deviceLogRepository.getListByTime(userId, fromTimestamp, toTimestamp);
+	public List<DeviceLog> getListByTime(String userId, String name, long fromTimestamp, long toTimestamp) {
+		return deviceLogRepository.getListByTime(userId, name, fromTimestamp, toTimestamp);
 	}
 
 	// get all list device, no page
