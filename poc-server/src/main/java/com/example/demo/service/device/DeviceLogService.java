@@ -39,6 +39,7 @@ import com.example.demo.service.message.Message;
 
 @Service
 public class DeviceLogService {
+	
 	private final DeviceRepository deviceRepository;
 	private final UserRepository userRepository;
 	private final DeviceLogRepository deviceLogRepository;
@@ -63,6 +64,10 @@ public class DeviceLogService {
 		this.databaseUpdateRepo = databaseUpdateRepo;
 	}
 
+	
+	/*
+	 * Device submit when user access
+	 * */
 	public boolean submitLog(DeviceLogSubmitDto deviceLogSubmitDto) {
 		
 		float max_temperature = temperatureRepository.findById(1).getTemperature();
@@ -71,38 +76,33 @@ public class DeviceLogService {
 		}
 
 		if (deviceRepository.findDeviceById(deviceLogSubmitDto.getDeviceId()) == null) {
-			// add device_id moi vao he thong
+			// add new device_id 
 			Device addDevice = new Device(deviceLogSubmitDto.getDeviceId(), deviceLogSubmitDto.getLocation(),
 					deviceLogSubmitDto.getFloor(), deviceLogSubmitDto.getRoom());
 			deviceRepository.save(addDevice);
 		}
 		DeviceLog deviceLog = new DeviceLog();
-		// neu UUID not exist van save
+		// UUID not exist => save 
 		if (userRepository.findUserById(deviceLogSubmitDto.getUserId()) == null) {
-			// add use_id moi vao he thong
+			// add new use_id 
 			User addUser = new User(deviceLogSubmitDto.getUserId(), deviceLogSubmitDto.getName());			
 			userRepository.save(addUser);
 			
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());			
 			DatabaseUpdate dateModify = new DatabaseUpdate(1, timestamp.getTime());
 			databaseUpdateRepo.save(dateModify);
-		}
+		}		
 		User user = userRepository.findUserById(deviceLogSubmitDto.getUserId());
-		// check client
-
-//        if(!user.getName().contentEquals(deviceLogSubmitDto.getName())) {
-//        	System.out.println("chay vao day");
-//        	User addUser = new User(deviceLogSubmitDto.getUserId(), deviceLogSubmitDto.getName() );
-//        	userRepository.save(addUser);
-//        }
-
+		Device device = deviceRepository.findDeviceById(deviceLogSubmitDto.getDeviceId());
+	
 		deviceLog.setDevice(deviceRepository.findDeviceById(deviceLogSubmitDto.getDeviceId()));
 		deviceLog.setTimestamp(deviceLogSubmitDto.getTimestamp());
 		deviceLog.setTemperature(deviceLogSubmitDto.getTemperature());
 		deviceLog.setUser(userRepository.findUserById(deviceLogSubmitDto.getUserId()));
-		deviceLog.setCardType(deviceLogSubmitDto.getCardType());
+		deviceLog.setType(deviceLogSubmitDto.getType());
 		deviceLog.setName(user.getName());
-		deviceLog.setTtCode(deviceLogSubmitDto.getTtCode());		
+		deviceLog.setTtCode(deviceLogSubmitDto.getTtCode());	
+		deviceLog.setLocation(device.getLocation());
 
 		try {
 			deviceLogRepository.save(deviceLog);
@@ -124,6 +124,8 @@ public class DeviceLogService {
 		}
 		return true;
 	}
+	
+	
 
 	public List<DeviceLogDto> getList(int page, int pageSize) {
 		List<DeviceLogDto> deviceLogDtoList = new ArrayList<>();
@@ -195,6 +197,7 @@ public class DeviceLogService {
 		Long toTimestampFilter;
 		Long fromTimestampFiler;
 		Pageable paging;
+		Page<DeviceLog> deviceLogList;
 
 		if (order.equalsIgnoreCase("DESC")) {
 			paging = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
@@ -214,10 +217,15 @@ public class DeviceLogService {
 		} else {
 			fromTimestampFiler = (long) 0;
 		}
-
-		Page<DeviceLog> deviceLogList = deviceLogRepository.findByFilter(nameFilter, deviceIdFilter, fromTimestampFiler,
-				toTimestampFilter, paging);
-
+		
+		if(deviceId.equalsIgnoreCase("")) {
+			deviceLogList = deviceLogRepository.findByFilter(nameFilter, fromTimestampFiler,
+					toTimestampFilter, paging);
+		}else {
+			deviceLogList = deviceLogRepository.findByFilter(nameFilter, deviceIdFilter, fromTimestampFiler,
+					toTimestampFilter, paging);
+		}	
+	
 		Long totalItems = deviceLogList.getTotalElements();
 
 		for (DeviceLog deviceLog : deviceLogList) {
@@ -233,15 +241,15 @@ public class DeviceLogService {
 	 * function: download csv by filter, convert timestamp to date
 	 *
 	 */
-
 	public List<EntryCsvDto> getListByFilter(String name, String deviceId, Long fromTimestamp, Long toTimestamp,
-			String sortBy, String order) {
+			String sortBy, String order, String timezone) {
 		List<EntryCsvDto> EntryCsvDto = new ArrayList<>();
 		String nameFilter = "%" + name + "%";
 		String deviceIdFilter = "%" + deviceId + "%";
 		Long toTimestampFilter;
 		Long fromTimestampFiler;
 		Pageable paging;
+		Page<DeviceLog> deviceLogList;
 
 		if (order.equalsIgnoreCase("DESC")) {
 			paging = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.DESC, sortBy));
@@ -261,12 +269,16 @@ public class DeviceLogService {
 		} else {
 			fromTimestampFiler = (long) 0;
 		}
-
-		Page<DeviceLog> deviceLogList = deviceLogRepository.findByFilter(nameFilter, deviceIdFilter, fromTimestampFiler,
-				toTimestampFilter, paging);
+		if(deviceId.equalsIgnoreCase("")) {
+			deviceLogList = deviceLogRepository.findByFilter(nameFilter, fromTimestampFiler,
+					toTimestampFilter, paging);
+		}else {
+			deviceLogList = deviceLogRepository.findByFilter(nameFilter, deviceIdFilter, fromTimestampFiler,
+					toTimestampFilter, paging);
+		}		
 
 		for (DeviceLog i : deviceLogList) {
-			EntryCsvDto.add(map.entryCsvDto(i));
+			EntryCsvDto.add(map.entryCsvDto(i, timezone));
 		}
 
 		return EntryCsvDto;

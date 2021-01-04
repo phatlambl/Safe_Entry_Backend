@@ -2,8 +2,11 @@ package com.example.demo.controller.user;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -164,19 +167,21 @@ public class UserRestController {
 	 * include: id, name, email, faceId
 	 * */
 	@GetMapping(value = "download")
-	public void exportCsv(HttpServletResponse response) throws IOException {
-
+	public void exportCsv(HttpServletResponse response,
+			@RequestParam(name="timezone", required = false, defaultValue = "GMT+8") String timezone) throws IOException {
+		
 		List<User> listUser = new ArrayList<User>();
 
 		listUser = userRepository.findAll();
 		response.setContentType("text/csv");
-//		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-//		String dateDownload = sdf.format(new Date());  
-//		System.out.println(dateDownload);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone(timezone));
+		String dateDownload = sdf.format(new Date());  
+		System.out.println(dateDownload);
 
-		String fileName = "employee.csv";
+		String fileName = "employee ";
 		String headerKey = "Content-Disposition";
-		String headerValue = "attachment; filename=" + fileName;
+		String headerValue = "attachment; filename=" + fileName + dateDownload+ ".csv";
 		
 		response.setHeader(headerKey, headerValue);
 		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
@@ -188,7 +193,6 @@ public class UserRestController {
 		for (User user : listUser) {
 			csvWriter.write(user, nameMapping);
 		}
-
 		csvWriter.close();
 	}
 
@@ -225,7 +229,7 @@ public class UserRestController {
 					User user = new User(userDto.getId(), userDto.getName(), userDto.getEmail(), userDto.getFaceId());
 					userRepository.save(user);
 				}
-
+				
 			} catch (Exception e) {
 				ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST,
 						Message.IMPORT_NOT_CORRECT);

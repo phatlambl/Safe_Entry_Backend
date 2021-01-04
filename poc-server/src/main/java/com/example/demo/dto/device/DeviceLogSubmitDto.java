@@ -14,10 +14,9 @@ public class DeviceLogSubmitDto {
 	private float temperature;
 	
 	@NotNull
-    private Long timestamp;
-    
-	@NotNull
-    private String cardType;
+    private Long timestamp;    
+	
+    private String type;
 	
 	private String ttCode;
 	
@@ -28,7 +27,6 @@ public class DeviceLogSubmitDto {
 	private String room;
 	
 	private String name;
-
 	
     public String getTtCode() {
 		return ttCode;
@@ -68,14 +66,14 @@ public class DeviceLogSubmitDto {
 
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
-    }
+    }	
 
-	public String getCardType() {
-		return cardType;
+	public String getType() {
+		return type;
 	}
 
-	public void setCardType(String cardType) {
-		this.cardType = cardType;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getLocation() {
@@ -109,9 +107,5 @@ public class DeviceLogSubmitDto {
 	public void setRoom(String room) {
 		this.room = room;
 	}
-
-		
-	
-    
 	
 }

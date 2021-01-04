@@ -7,7 +7,9 @@ import com.example.demo.dto.user.UserTemperature;
 import com.example.demo.model.device.DeviceLog;
 import com.example.demo.model.user.User;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.springframework.stereotype.Service;
 
@@ -15,31 +17,54 @@ import org.springframework.stereotype.Service;
 public class Map {
     public DeviceLogDto deviceLogDto(DeviceLog deviceLog) {
         DeviceLogDto deviceLogDto = new DeviceLogDto();
-        
-        deviceLogDto.setUserId(deviceLog.getUser().getId());
+        if(deviceLog.getUser() == null) {
+        	deviceLogDto.setUserId("User is deleted");
+        }else {
+        	deviceLogDto.setUserId(deviceLog.getUser().getId());
+		}
+        if(deviceLog.getDevice() == null) {
+        	deviceLogDto.setDeviceId("Device is deleted");        	
+        }else {
+        	deviceLogDto.setDeviceId(deviceLog.getDevice().getId());
+		}
         deviceLogDto.setName(deviceLog.getName());
-        deviceLogDto.setCardType(deviceLog.getCardType());
+        deviceLogDto.setCardType(deviceLog.getType());
         deviceLogDto.setTimestamp(deviceLog.getTimestamp());
-        deviceLogDto.setTtCode(deviceLog.getTtCode());
-        deviceLogDto.setDeviceId(deviceLog.getDevice().getId());
-        deviceLogDto.setLocation(deviceLog.getDevice().getLocation());
+        deviceLogDto.setTtCode(deviceLog.getTtCode());        
+        deviceLogDto.setLocation(deviceLog.getLocation());
         deviceLogDto.setTemperature(deviceLog.getTemperature());        
         
         return deviceLogDto;
-    }
-    
-    
-    
-    public EntryCsvDto entryCsvDto(DeviceLog deviceLog) {
+    }  
+   
+      
+    public EntryCsvDto entryCsvDto(DeviceLog deviceLog, String timezone) {
     	EntryCsvDto entryCsvDto = new EntryCsvDto();    	
+    	if(deviceLog.getUser()== null) {
+    		entryCsvDto.setUserId("null");
+    	}else {
+    		entryCsvDto.setUserId(deviceLog.getUser().getId());
+		}
+    	if(deviceLog.getDevice() == null) {
+    		entryCsvDto.setDeviceId("null");
+    	}else {
+    		entryCsvDto.setDeviceId(deviceLog.getDevice().getId());
+		}    	
+    	entryCsvDto.setName(deviceLog.getName());
+    	entryCsvDto.setType(deviceLog.getType());	
+    	entryCsvDto.setLocation(deviceLog.getLocation());
+    	entryCsvDto.setTemperature(deviceLog.getTemperature());    	
     	
-    	entryCsvDto.setUserId(deviceLog.getUser().getId());
-    	entryCsvDto.setName(deviceLog.getUser().getName());
-    	entryCsvDto.setCardType(deviceLog.getCardType());    	
-    	entryCsvDto.setDeviceId(deviceLog.getDevice().getId());
-    	entryCsvDto.setLocation(deviceLog.getDevice().getLocation());
-    	entryCsvDto.setTemperature(deviceLog.getTemperature());
-    	entryCsvDto.setTimestamp(new Date(deviceLog.getTimestamp()));
+    	SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+    	dateFormatter.setTimeZone(TimeZone.getTimeZone(timezone));
+    	String Date = dateFormatter.format(new Date(deviceLog.getTimestamp()));    	
+    	entryCsvDto.setDate(Date);
+    	
+    	SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    	timeFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+    	String time =timeFormat.format(new Date(deviceLog.getTimestamp()));
+    	
+    	entryCsvDto.setTime(time);    	
     	entryCsvDto.setTTCode(deviceLog.getTtCode());
     	
     	return entryCsvDto;

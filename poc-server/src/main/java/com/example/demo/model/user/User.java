@@ -2,6 +2,7 @@ package com.example.demo.model.user;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +38,7 @@ public class User {
     private String faceId;
     
     @Transient
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	private transient List<DeviceLog> listDeviceLogs;
 
     public String getId() {

@@ -20,6 +20,8 @@ public class Device {
     @Column(name="room")
     private String room;
     
+    
+    
     public String getId() {
 		return id;
 	}

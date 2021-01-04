@@ -1,16 +1,16 @@
-package com.example.demo.dto.device;
+package com.example.demo.dto;
 
 import java.util.List;
 
 /*
- * 
+ *DTO pagination
  * */
-public class DeviceLogListDto {
+public class PaginationDto {
 
 	private Long totalItems;
 	private int currentPage;
 	private int pageSize;
-	private List<DeviceLogDto> data;
+	private List<Object> data;
 	
 	public Long getTotalItems() {
 		return totalItems;
@@ -30,19 +30,27 @@ public class DeviceLogListDto {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
-	public List<DeviceLogDto> getData() {
+	public List<Object> getData() {
 		return data;
 	}
-	public void setData(List<DeviceLogDto> data) {
+	public void setData(List<Object> data) {
 		this.data = data;
 	}
-	public DeviceLogListDto(Long totalItems, int currentPage, int pageSize, List<DeviceLogDto> data) {		
+	
+	public PaginationDto(Long totalItems, int currentPage, int pageSize, List<Object> data) {
+		super();
 		this.totalItems = totalItems;
 		this.currentPage = currentPage;
 		this.pageSize = pageSize;
 		this.data = data;
 	}
-	public DeviceLogListDto() {
+	
+	public PaginationDto() {
 		
 	}
+	
+	
+	
+	
+	
 }

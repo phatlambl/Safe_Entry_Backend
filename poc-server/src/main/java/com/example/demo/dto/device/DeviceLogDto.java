@@ -1,10 +1,14 @@
 package com.example.demo.dto.device;
 
+/*
+ * deviceLog: mean when user login/access device
+ * 
+ * */
 public class DeviceLogDto {
 	
     private String userId;   
     private String name;
-    private String cardType;
+    private String type;
     private float temperature;
     private Long timestamp;
     private String deviceId;
@@ -60,11 +64,11 @@ public class DeviceLogDto {
     }
 
 	public String getCardType() {
-		return cardType;
+		return type;
 	}
 
 	public void setCardType(String cardType) {
-		this.cardType = cardType;
+		this.type = cardType;
 	}
 
 	public String getTtCode() {
@@ -74,8 +78,6 @@ public class DeviceLogDto {
 	public void setTtCode(String ttCode) {
 		this.ttCode = ttCode;
 	}
-
-	
 
     
 }

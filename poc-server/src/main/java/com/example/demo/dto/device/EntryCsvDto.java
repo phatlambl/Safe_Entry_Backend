@@ -1,7 +1,5 @@
 package com.example.demo.dto.device;
 
-import java.util.Date;
-
 /*
  * Download deviceLog to CSV 
  *  * */
@@ -9,9 +7,10 @@ public class EntryCsvDto {
 
 	private String userId;   
     private String name;
-    private String cardType;
+    private String type;
     private float temperature;
-    private Date timestamp;
+    private String date;
+    private String time;
     private String deviceId;
     private String location;
     private String TTCode;
@@ -27,24 +26,30 @@ public class EntryCsvDto {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}	
+	public String getType() {
+		return type;
 	}
-	public String getCardType() {
-		return cardType;
-	}
-	public void setCardType(String cardType) {
-		this.cardType = cardType;
+	public void setType(String type) {
+		this.type = type;
 	}
 	public float getTemperature() {
 		return temperature;
 	}
 	public void setTemperature(float temperature) {
 		this.temperature = temperature;
+	}	
+	public String getDate() {
+		return date;
 	}
-	public Date getTimestamp() {
-		return timestamp;
+	public void setDate(String date) {
+		this.date = date;
 	}
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
 	}
 	public String getDeviceId() {
 		return deviceId;
@@ -64,7 +69,6 @@ public class EntryCsvDto {
 	public void setTTCode(String tTCode) {
 		TTCode = tTCode;
 	}  
-	
     
     
 }

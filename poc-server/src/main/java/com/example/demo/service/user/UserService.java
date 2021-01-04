@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,20 +24,21 @@ import com.example.demo.repository.user.UserRoleRepository;
 
 @Service
 public class UserService {
-	private final UserRepository userRepository;
-	private final Map map;
-	private final RoleRepository roleRepository;
-	private final UserRoleRepository userRoleRepository;
-	private final DatabaseUpdateReposiroty databaseUpdateRepo;
-
-	public UserService(UserRepository userRepository, Map map, RoleRepository roleRepository,
-			UserRoleRepository userRoleRepository, DatabaseUpdateReposiroty databaseUpdateRepo) {
-		this.userRepository = userRepository;
-		this.map = map;
-		this.roleRepository = roleRepository;
-		this.userRoleRepository = userRoleRepository;
-		this.databaseUpdateRepo = databaseUpdateRepo;
-	}
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private Map map;
+	
+	@Autowired
+	private RoleRepository roleRepository;
+	
+	@Autowired
+	private UserRoleRepository userRoleRepository;
+	
+	@Autowired
+	private DatabaseUpdateReposiroty databaseUpdateRepo;
 
 	public List<UserDto> getListUser(int page, int pageSize) {
 		List<UserDto> userList = new ArrayList<>();
@@ -93,10 +95,11 @@ public class UserService {
 	}
 
 	public boolean delete(String id) {
-
 		try {
 			userRepository.deleteUserById(id);
-
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			DatabaseUpdate dateModify = new DatabaseUpdate(1, timestamp.getTime());
+			databaseUpdateRepo.save(dateModify);
 		} catch (Exception e) {
 			return false;
 		}

@@ -18,7 +18,7 @@ public class DeviceLog {
     private int id;
     
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)  
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
@@ -36,7 +36,7 @@ public class DeviceLog {
     private float temperature;
     
     @Column(name="card_type")
-    private String cardType;
+    private String type;
     
     @Column(name="name")
     private String name;    
@@ -44,7 +44,9 @@ public class DeviceLog {
     @Column(name="tt_code")
     private String ttCode;
    
-
+    @Column(name="location")
+    private String location;
+    
     public float getTemperature() {
         return temperature;
     }
@@ -84,12 +86,12 @@ public class DeviceLog {
         this.timestamp = timestamp;
     }
 
-	public String getCardType() {
-		return cardType;
+	public String getType() {
+		return type;
 	}
 
-	public void setCardType(String cardType) {
-		this.cardType = cardType;
+	public void setType(String cardType) {
+		this.type = cardType;
 	}
 
 	public String getName() {
@@ -108,7 +110,13 @@ public class DeviceLog {
 		this.ttCode = ttCode;
 	}
 
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
 	
-	
-    
+	    
 }

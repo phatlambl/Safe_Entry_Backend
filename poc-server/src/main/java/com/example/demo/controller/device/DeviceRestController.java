@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -96,15 +97,12 @@ public class DeviceRestController {
 	 */
 	@RequestMapping(value = "access", method = RequestMethod.POST)
 	public Object deviceAccess(@Validated @RequestBody DeviceAccessFaceIdDto deviceAccessFaceIdDto,HttpServletResponse resp,
-			BindingResult result) {
-	
+			BindingResult result) {	
 		if (result.hasErrors()) {
 			ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST,
 					Message.MISS_INFORMATION);
 			return reMessage;
-		}
-		
-		
+		}		
 		//call to server face recognize
 		
 //		 final String uri = "https://uat4.styl.solutions/demo/rest/user/login";		 
@@ -119,11 +117,9 @@ public class DeviceRestController {
 		
 		Optional<User> user = userRepository.findByFaceId(deviceAccessFaceIdDto.getFaceId());
 		if (user.isPresent()) {
-
 			faceIdResponse res = new faceIdResponse(user.get(), HttpServletResponse.SC_OK, Message.LOGIN_SUCCESS);
 			return res;
 		}
-
 		ResponseMessage reMessage = new ResponseMessage(HttpServletResponse.SC_BAD_REQUEST, Message.NOT_RECOGNIZE);
 		return reMessage;
 	}
@@ -240,30 +236,35 @@ public class DeviceRestController {
 			@RequestParam(name = "fromTimestamp", required = false) Long fromTimestamp,
 			@RequestParam(name = "toTimestamp", required = false) Long toTimestamp,
 			@RequestParam(name = "sortBy", required = false, defaultValue = "timestamp") String sortBy,
-			@RequestParam(name = "order", required = false, defaultValue = "DESC") String order) throws IOException {
+			@RequestParam(name = "order", required = false, defaultValue = "DESC") String order,
+			@RequestParam(name="timezone", required = false, defaultValue = "GMT+8") String timezone) throws IOException {
 
 		List<EntryCsvDto> listDeviceLogDto = new ArrayList<EntryCsvDto>();
-		listDeviceLogDto = deviceLogService.getListByFilter(name, deviceId, fromTimestamp, toTimestamp, sortBy, order);
+		listDeviceLogDto = deviceLogService.getListByFilter(name, deviceId, fromTimestamp, toTimestamp, sortBy, order, timezone);
 
 		response.setContentType("text/csv");
-		String fileName = "overview.csv";
+		
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		dateFormatter.setTimeZone(TimeZone.getTimeZone(timezone));
+		String currentDateTime = dateFormatter.format(new Date());
+		String fileName = "SafeEntry ";
 		String headerKey = "Content-Disposition";
-		String headerValue = "attachment; filename=" + fileName;
+		String headerValue = "attachment; filename=" + fileName + currentDateTime + ".csv";
 
 		response.setHeader(headerKey, headerValue);
 
 		ICsvBeanWriter csvWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
 
-		String[] csvHeader = { "UUID", "Name", "CardType", "Temperature", "Timestamp", "TTCode", "deviceId",
-				"Location" };
-		String[] nameMapping = { "userId", "name", "cardType", "temperature", "timestamp", "ttCode", "deviceId",
-				"location" };
+		String[] csvHeader = { "UUID", "Name", "Type", "Temperature", "Date", "Time", "TTCode", "deviceId",
+				"Location"};
+		String[] nameMapping = { "userId", "name", "type", "temperature", "date", "time", "ttCode", "deviceId",
+				"location"};
 
 		csvWriter.writeHeader(csvHeader);
 		for (EntryCsvDto entryCsvDto : listDeviceLogDto) {
 			csvWriter.write(entryCsvDto, nameMapping);
 		}
-
+		
 		csvWriter.close();
 	}
 	

@@ -77,7 +77,7 @@ public class DeviceLogExcelExport {
 			sheet.autoSizeColumn(2);
 
 			cell = row.createCell(3);
-			cell.setCellValue(log.getCardType());
+			cell.setCellValue(log.getType());
 			sheet.autoSizeColumn(3);
 
 			cell = row.createCell(4);

@@ -10,7 +10,7 @@ public class TemperatureConfigDto {
     
 	@NotNull
 	@NotEmpty
-    private String emails;
+    private Email[] emails;
 
     public float getTemperature() {
         return temperature;
@@ -20,11 +20,12 @@ public class TemperatureConfigDto {
         this.temperature = temperature;
     }
 
-    public String getEmails() {
-        return emails;
-    }
+	public Email[] getEmails() {
+		return emails;
+	}
 
-    public void setEmails(String emails) {
-        this.emails = emails;
-    }
+	public void setEmails(Email[] emails) {
+		this.emails = emails;
+	}
+
 }
